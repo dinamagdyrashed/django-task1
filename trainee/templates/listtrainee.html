@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}List of Trainees{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4 text-center">Trainee List</h2>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <ul class="list-group">
+        {% for trainee in trainees %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <span class="fw-bold">{{ trainee.id }}:</span> {{ trainee.name }}
+          </div>
+          <div>
+            <a href="{% url 'updateTrainee' trainee.id %}" class="btn btn-sm btn-outline-primary me-2">Edit</a>
+            <a href="{% url 'deleteTrainee' trainee.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+          </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item text-center">No trainees available.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
