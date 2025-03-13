@@ -21,12 +21,25 @@
 
         <div class="mb-3">
           <label for="traineeEmail" class="form-label">Trainee Email</label>
-          <input type="email" class="form-control" id="traineeEmail" name="traineeEmail" placeholder="Enter trainee Email" required value="{{ trainee.email }}">  <!-- Fixed closing quote -->
+          <input type="email" class="form-control" id="traineeEmail" name="traineeEmail" placeholder="Enter trainee Email" required value="{{ trainee.email }}">
         </div>
 
         <div class="mb-3">
           <label for="traineeImg" class="form-label">Trainee Image</label>
-          <input type="file" class="form-control" id="traineeImg" name="traineeImg" required>
+          <input type="file" class="form-control" id="traineeImg" name="traineeImg">
+        </div>
+
+        <div class="mb-3">
+          <label for="course" class="form-label">Select Course</label>
+          <select name="course" class="form-control">
+            <option value="">Select a Course</option>
+            {% for course in courses %}
+              <option value="{{ course.id }}"
+                {% if trainee.course.id == course.id %}selected{% endif %}>
+                {{ course.name }}
+              </option>
+            {% endfor %}
+          </select>
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Update Trainee</button>

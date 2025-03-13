@@ -18,6 +18,7 @@
             <th>ID</th>
             <th>Name</th>
             <th>Email</th>
+            <th>Course</th>
             <th>Status</th>
             <th>Actions</th>
           </tr>
@@ -28,6 +29,15 @@
             <td>{{ trainee.id }}</td>
             <td>{{ trainee.name }}</td>
             <td>{{ trainee.email }}</td>
+            <td>
+              {% if trainee.course %}
+                <a href="{% url 'courseTrainees' trainee.course.id %}">
+                  {{ trainee.course.name }}
+                </a>
+              {% else %}
+                <span class="text-muted">No Course</span>
+              {% endif %}
+            </td>
             <td>
               <span class="badge {% if trainee.status %}bg-success{% else %}bg-danger{% endif %}">
                 {% if trainee.status %}
@@ -48,7 +58,7 @@
           </tr>
           {% empty %}
           <tr>
-            <td colspan="5" class="text-center">No trainees available.</td>
+            <td colspan="6" class="text-center">No trainees available.</td>
           </tr>
           {% endfor %}
         </tbody>

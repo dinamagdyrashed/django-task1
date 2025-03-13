@@ -30,6 +30,16 @@ def updateCourse(request, id):
 
 
 
+def courseTrainees(request, course_id):
+    try:
+        course = Course.objects.get(id=course_id)
+        trainees = course.trainees.all()
+        return render(request, 'courseTrainees.html', {
+            'course': course,
+            'trainees': trainees
+        })
+    except Course.DoesNotExist:
+        return render(request, 'error.html', {'message': 'Course not found'})
 def deleteCourse(request, id):
     Course.objects.filter(id=id).update(status=False)
     return redirect('courseList')
