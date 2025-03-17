@@ -23,4 +23,6 @@ urlpatterns = [
     path('',include('trainee.urls')),
     path('courses/',include('course.urls')),
     path('users/',include('users.urls'))
-] + static(settings.MEDIA_URL, documen_root=settings.MEDIA_ROOT)
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

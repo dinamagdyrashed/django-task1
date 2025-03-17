@@ -7,39 +7,90 @@
   <div class="card shadow-sm">
     <div class="card-body">
       <h2 class="mb-4 text-center">Edit Trainee</h2>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          <strong>Please correct the following errors:</strong>
+          <ul>
+            {% for field in form %}
+              {% for error in field.errors %}
+                <li>{{ field.label }}: {{ error }}</li>
+              {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
       <form method="post">
         {% csrf_token %}
+
         <div class="mb-3">
-          <label for="traineeId" class="form-label">Trainee ID</label>
-          <input type="number" class="form-control" id="traineeId" name="id" placeholder="Enter trainee ID" value="{{ trainee.id }}" readonly required>
+          <label class="form-label">Trainee ID</label>
+          <input type="text" class="form-control" value="{{ object.id }}" readonly>
         </div>
 
         <div class="mb-3">
-          <label for="traineeName" class="form-label">Trainee Name</label>
-          <input type="text" class="form-control" id="traineeName" name="name" placeholder="Enter trainee name" value="{{ trainee.name }}" required>
+          <label for="{{ form.name.id_for_label }}" class="form-label">Trainee Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+            <div class="text-danger">
+              {% for error in form.name.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
 
         <div class="mb-3">
-          <label for="traineeEmail" class="form-label">Trainee Email</label>
-          <input type="email" class="form-control" id="traineeEmail" name="traineeEmail" placeholder="Enter trainee Email" required value="{{ trainee.email }}">
+          <label for="{{ form.email.id_for_label }}" class="form-label">Trainee Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="text-danger">
+              {% for error in form.email.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
 
         <div class="mb-3">
-          <label for="traineeImg" class="form-label">Trainee Image</label>
-          <input type="file" class="form-control" id="traineeImg" name="traineeImg">
+          <label for="{{ form.image.id_for_label }}" class="form-label">Trainee Image</label>
+          {{ form.image }}
+          {% if object.image %}
+            <div class="mt-2">
+              <img src="{{ object.image.url }}" alt="{{ object.name }}" class="img-thumbnail" style="max-width: 200px;">
+            </div>
+          {% endif %}
+          {% if form.image.errors %}
+            <div class="text-danger">
+              {% for error in form.image.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
 
         <div class="mb-3">
-          <label for="course" class="form-label">Select Course</label>
-          <select name="course" class="form-control">
-            <option value="">Select a Course</option>
-            {% for course in courses %}
-              <option value="{{ course.id }}"
-                {% if trainee.course.id == course.id %}selected{% endif %}>
-                {{ course.name }}
-              </option>
-            {% endfor %}
-          </select>
+          <label for="{{ form.course.id_for_label }}" class="form-label">Select Course</label>
+          {{ form.course }}
+          {% if form.course.errors %}
+            <div class="text-danger">
+              {% for error in form.course.errors %}
+                {{ error }}
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
 
         <button type="submit" class="btn btn-primary w-100">Update Trainee</button>

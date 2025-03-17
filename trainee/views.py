@@ -1,53 +1,96 @@
-from django.shortcuts import render, redirect
+# views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import (
+    ListView,
+    DetailView,
+    DeleteView,
+    CreateView,
+    UpdateView
+)
+from django.contrib import messages
 from .models import Trainee
 from course.models import Course
-from django.contrib import messages
 from .forms import TraineeForm
+from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
+
+class TraineeListView(ListView):
+    model = Trainee
+    template_name = 'listtrainee.html'
+    context_object_name = 'trainees'
+
+    def get_queryset(self):
+        return Trainee.objects.order_by('id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['courses'] = Course.objects.filter(status=True)
+        return context
+        return context
 
 
-def traineeList(request):
-    trainees = Trainee.objects.order_by('id')
-    courses = Course.objects.filter(status=True)
-    return render(request, 'listtrainee.html', {
-        "trainees": trainees,
-        "courses": courses
-    })
+class TraineeDetailView(DetailView):
+    model = Trainee
+    template_name = 'trainee_detail.html'
+    context_object_name = 'trainee'
 
-def addTrainee(request):
-    if request.method == 'POST':
-        form = TraineeForm(request.POST, request.FILES)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['courses'] = Course.objects.filter(status=True)
+        return context
 
-        if form.is_valid():
-            form.save()
 
-            messages.success(request, 'Trainee added successfully!')
+class TraineeDeleteView(SuccessMessageMixin, DeleteView):
+    model = Trainee
+    template_name = 'trainee_confirm_delete.html'
+    success_url = reverse_lazy('traineeList')
+    success_message = "Trainee was successfully deactivated."
 
-            return redirect('traineeList')
-        else:
-            return render(request, 'addTrainee.html', {'form': form})
+    def delete(self, request, *args, **kwargs):
+        # Soft delete instead of actual deletion
+        trainee = self.get_object()
+        trainee.status = False
+        trainee.save()
+        return super().delete(request, *args, **kwargs)
 
-    form = TraineeForm()
-    return render(request, 'addTrainee.html', {'form': form})
 
-def updateTrainee(request, id):
-    trainee = Trainee.objects.get(id=id)
-    if request.method == 'POST':
-        selected_course_id = request.POST.get('course')
-        course = Course.objects.get(id=selected_course_id) if selected_course_id else None
 
-        Trainee.objects.filter(id=id).update(
-            name=request.POST['name'],
-            email=request.POST['traineeEmail'],
-            image=request.POST['traineeImg'],
-            course=course
-        )
-        return redirect('traineeList')
 
-    courses = Course.objects.filter(status=True)
-    return render(request, 'editTrainee.html', {
-        "trainee": trainee,
-        "courses": courses
-    })
+class TraineeCreateView(SuccessMessageMixin, CreateView):
+    model = Trainee
+    form_class = TraineeForm
+    template_name = 'addTrainee.html'
+    success_url = reverse_lazy('traineeList')
+    success_message = "Trainee was created successfully."
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)
+
+class TraineeUpdateView(SuccessMessageMixin, UpdateView):
+    model = Trainee
+    form_class = TraineeForm
+    template_name = 'editTrainee.html'
+    success_url = reverse_lazy('traineeList')
+    success_message = "Trainee was updated successfully."
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['courses'] = Course.objects.filter(status=True)
+        return context
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Please correct the errors below.")
+        return super().form_invalid(form)
+
+
+
 def deleteTrainee(request, id):
-    Trainee.objects.filter(id=id).update(status=False)
+    trainee = get_object_or_404(Trainee, id=id)
+    trainee.status = False
+    trainee.save()
+    messages.success(request, 'Trainee deactivated successfully!')
     return redirect('traineeList')
+
+
+

@@ -6,8 +6,17 @@
 <div class="container mt-5">
   <h2 class="mb-4 text-center">Trainee List</h2>
 
-  <div class="mb-3">
-    <input type="text" class="form-control" id="searchInput" placeholder="Search for trainees..." onkeyup="searchTrainees()">
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <input type="text" class="form-control" id="searchInput" placeholder="Search for trainees..." onkeyup="searchTrainees()">
+    </div>
+    <div class="col-md-6">
+      <select id="statusFilter" class="form-control" onchange="filterTrainees()">
+        <option value="all">All Trainees</option>
+        <option value="active">Active Trainees</option>
+        <option value="inactive">Inactive Trainees</option>
+      </select>
+    </div>
   </div>
 
   <div class="card shadow-sm">
@@ -25,7 +34,7 @@
         </thead>
         <tbody id="traineeTable">
           {% for trainee in trainees %}
-          <tr>
+          <tr data-status="{{ trainee.status|yesno:'active,inactive' }}">
             <td>{{ trainee.id }}</td>
             <td>{{ trainee.name }}</td>
             <td>{{ trainee.email }}</td>
@@ -48,12 +57,17 @@
               </span>
             </td>
             <td>
-              <a href="{% url 'updateTrainee' trainee.id %}" class="btn btn-sm btn-outline-primary me-2" title="Edit">
-                <i class="bi bi-pencil"></i> Edit
-              </a>
-              <a href="{% url 'deleteTrainee' trainee.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
-                <i class="bi bi-trash"></i> Delete
-              </a>
+              <div class="btn-group" role="group">
+                <a href="{% url 'traineeDetail' trainee.id %}" class="btn btn-sm btn-info" title="View Details">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a href="{% url 'updateTrainee' trainee.id %}" class="btn btn-sm btn-outline-primary" title="Edit">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <a href="{% url 'deleteTrainee' trainee.id %}" class="btn btn-sm btn-outline-danger" title="Delete">
+                  <i class="bi bi-trash"></i>
+                </a>
+              </div>
             </td>
           </tr>
           {% empty %}
@@ -77,11 +91,14 @@
     const filter = input.value.toLowerCase();
     const table = document.getElementById('traineeTable');
     const rows = table.getElementsByTagName('tr');
+    const statusFilter = document.getElementById('statusFilter').value;
 
     for (let i = 0; i < rows.length; i++) {
       const cells = rows[i].getElementsByTagName('td');
+      const rowStatus = rows[i].getAttribute('data-status');
       let found = false;
 
+      // Search filter
       for (let j = 0; j < cells.length; j++) {
         if (cells[j]) {
           const txtValue = cells[j].textContent || cells[j].innerText;
@@ -92,8 +109,17 @@
         }
       }
 
-      rows[i].style.display = found ? "" : "none";
+      // Status filter
+      const statusMatch =
+        statusFilter === 'all' ||
+        statusFilter === rowStatus;
+
+      rows[i].style.display = (found && statusMatch) ? "" : "none";
     }
+  }
+
+  function filterTrainees() {
+    searchTrainees();
   }
 </script>
 
